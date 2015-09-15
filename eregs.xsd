@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" 
+	targetNamespace="eregs"
+	xmlns:tns="eregs" 
+	elementFormDefault="qualified">
+
+    <complexType name="Regulation">
+    	<sequence>
+    		<element name="fdsys" type="tns:FDSys"></element>
+    		<element name="preamble" type="tns:Preamble"></element>
+	    	<choice minOccurs="0" maxOccurs="unbounded">
+	    		<element ref="tns:part"></element>
+	    	</choice>
+    	</sequence>
+    </complexType>
+
+	<complexType name="Preamble">
+		<sequence>
+			<element name="agency" type="string"></element>
+			<element name="cfr">
+				<complexType>
+					<sequence>
+						<element name="title" type="int"></element>
+						<element name="section" type="int"></element>
+					</sequence>
+				</complexType>
+			</element>
+			<element name="depdoc" type="string"></element>
+			<element name="rin" type="string"></element>
+			<element name="summary">
+				<complexType>
+					<sequence>
+						<element name="header" type="string"></element>
+						<element name="content" type="string"></element>
+					</sequence>
+				</complexType>
+			</element>
+			<element name="effectiveDate" type="date"></element>
+		</sequence>
+	</complexType>
+	
+	<complexType name="FDSys">
+		<sequence>
+			<element name="cfrTitleNum" type="int"></element>
+			<element name="cfrTitleText" type="string"></element>
+			<element name="volume" type="int"></element>
+			<element name="date" type="date"></element>
+			<element name="originalDate" type="date"></element>
+			<element name="title" type="string"></element>
+		</sequence>
+	</complexType>
+	
+	<complexType name="Part">
+		<sequence>
+			<element name="tableOfContents" type="tns:TableOfContents"></element>
+			<element name="auth">
+				<complexType>
+					<sequence>
+						<element name="title" type="string"></element>
+						<element name="content" type="string"></element>
+					</sequence>
+				</complexType>
+			</element>
+			<choice minOccurs="0" maxOccurs="unbounded">
+				<element ref="tns:section"></element>
+			</choice>
+			<choice minOccurs="0" maxOccurs="unbounded">
+				<element ref="tns:appendix"></element>
+			</choice>
+		</sequence>
+		<attribute name="partNumber" type="int" use="required"></attribute>
+	</complexType>
+	
+	<complexType name="SuppInfo">
+		<sequence>
+			<element name="paragraph" type="tns:Paragraph"></element>
+		</sequence>
+	</complexType>
+	
+	<complexType name="TableOfContents">
+		<sequence>
+			<element name="tocSecEntry" maxOccurs="unbounded">
+				<complexType>
+					<sequence>
+						<element name="sectionNum" type="int"></element>
+						<element name="sectionSubject" type="string"></element>
+					</sequence>
+				</complexType>
+			</element>
+			<choice minOccurs="0" maxOccurs="unbounded">
+				<element name="tocAppEntry">
+					<complexType>
+						<sequence>
+							<element name="appendixLetter" type="string"></element>
+							<element name="appendixSubject" type="string"></element>
+						</sequence>
+					</complexType>
+				</element>
+			</choice>
+		</sequence>
+	</complexType>
+
+    <complexType name="Section">
+    	<sequence>
+    		<element name="subject" type="string"></element>
+    		<choice maxOccurs="unbounded">
+    			<element name="paragraph" type="tns:Paragraph"></element>
+    		</choice>
+    	</sequence>
+    	<attribute name="sectionNum" type="int" use="required"></attribute>
+    </complexType>
+    
+    <complexType name="AppendixSection">
+    	<sequence>
+    		<element name="subject" type="string"></element>
+    		<choice maxOccurs="unbounded">
+    			<element ref="tns:appendixHeader"></element>
+    			<element ref="tns:paragraph"></element>
+    		</choice>
+    	</sequence>
+    	<attribute name="appendixSecNum" type="string" use="required"></attribute>
+    </complexType>
+
+    <complexType name="Paragraph">
+    	<sequence>
+    		<choice minOccurs="0" maxOccurs="unbounded">
+    			<element name="title" type="string"></element>
+    		</choice>
+    		<element name="content" type="tns:RegText"></element>
+    		<element ref="tns:paragraph" minOccurs="0" maxOccurs="unbounded"></element>
+    	</sequence>
+		<attribute name="marker" type="string" use="required"></attribute>
+		<attribute name="label" type="string"></attribute>
+    </complexType>
+
+	<complexType name="Reference">
+		<simpleContent>
+			<extension base="string">
+				<attribute name="target" type="string"></attribute>
+				<attribute name="reftype" type="string"></attribute>
+			</extension>
+		</simpleContent>
+	</complexType>
+	
+	<complexType name="InternalReference">
+		<complexContent>
+			<extension base="tns:Reference"></extension>
+		</complexContent>
+	</complexType>
+	
+	<complexType name="Appendix">
+		<sequence>
+			<element name="appendixTitle" type="tns:AppendixHeader"></element>
+			<choice minOccurs="0" maxOccurs="1">
+				<element ref="tns:tableOfContents"></element>
+			</choice>
+			<choice minOccurs="0" maxOccurs="unbounded">
+				<!-- <element ref="tns:appendixHeader"></element>  -->
+				<element ref="tns:appendixSection"></element>
+			</choice>
+		</sequence>
+		<attribute name="appendixLetter" type="string"></attribute>
+	</complexType>
+
+	<complexType name="Definition">
+		<simpleContent>
+			<extension base="string">
+				<attribute name="deftype"></attribute>
+			</extension>
+		</simpleContent>
+	</complexType>
+	
+	<complexType name="RegText" mixed="true">
+		<choice minOccurs="0" maxOccurs="unbounded">
+			<element ref="tns:ref"></element>
+			<element ref="tns:def"></element>
+		</choice>
+	</complexType>
+
+	<simpleType name="AppendixHeader">
+		<restriction base="string"></restriction>
+	</simpleType>
+
+    <element name="regulation" type="tns:Regulation"></element>
+    <element name="ref" type="tns:Reference"></element>
+    <element name="paragraph" type="tns:Paragraph"></element>
+    <element name="def" type="tns:Definition"></element>
+    <element name="preamble" type="tns:Preamble"></element>
+    <element name="section" type="tns:Section"></element>
+    <element name="appendix" type="tns:Appendix"></element>
+    <element name="appendixSection" type="tns:AppendixSection"></element>
+    <element name="part" type="tns:Part"></element>
+    <element name="tableOfContents" type="tns:TableOfContents"></element>
+    <element name="appendixHeader" type="tns:AppendixHeader"></element>
+    
+</schema>
